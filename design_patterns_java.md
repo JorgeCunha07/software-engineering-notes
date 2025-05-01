@@ -14,7 +14,7 @@ Deal with object creation mechanisms, aiming to create objects in a controlled a
 | Builder          | Separate the construction of a complex object from its representation.                                                               | When an object has many optional parameters or needs to be created step by step. | The Builder pattern can be recognized in a class, which has a single creation method and several methods to configure the resulting object. Builder methods often support chaining (for example, `someBuilder.setValueA(1).setValueB(2).create()`).                     |
 | Prototype        | Create new objects by copying an existing object.                                                                                    | When creating an object is expensive or complex.                                 | The prototype can be easily recognized by a `clone` or `copy` methods, etc.                                                                                                                                                                                             |
 
-### Code Examples
+### Code Examples (Creational Patterns)
 
 #### Singleton
 
@@ -364,15 +364,375 @@ public class Rectangle extends Shape {
 
 Focus on how classes and objects are composed to form larger structures.
 
-| Pattern Name | Intent                                                                    | Key Use Cases                                                            | Example in Core Java                                        |
-| ------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ----------------------------------------------------------- |
-| Adapter      | Allow objects with incompatible interfaces to work together.              | When you need to use an existing class with a different interface.       | `java.util.Arrays#asList()`                                 |
-| Bridge       | decouple an abstraction from its implementation.                          | When both abstraction and implementation can vary independently.         | JDBC API                                                    |
-| Composite    | Compose objects into tree structures representing part-whole hierarchies. | When you need to treat individual objects and compositions uniformly.    | `java.awt.Container`                                        |
-| Decorator    | Dynamically add responsibilities to an object.                            | When you need to add behavior to objects without subclassing.            | Subclasses of `java.io.InputSretam`, `java.io.OutputStream` |
-| Facade       | Provide a simplified interface to a complex subsystem.                    | To hide the complexity of a subsystem from the client.                   | Faces API's `ExternalContext`                               |
-| Flyweight    | Reduce memory usage by sharing common parts of state between objects.     | When you need to create a large number of similar objects.               | `IntegerCache` in `java.lang.Integer`                       |
-| Proxy        | Provide a placeholder for another object to control access to it.         | To control access to an object or add functionality before/after access. | `java.lang.reflect.Proxy`                                   |
+| Pattern Name | Intent                                                                    | Key Use Cases                                                            | Identification                                                                                                                                                                                                                                                                                    |
+| ------------ | ------------------------------------------------------------------------- | ------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Adapter      | Allow objects with incompatible interfaces to work together.              | When you need to use an existing class with a different interface.       | Adapter is recognizable by a constructor which takes an instance of a different abstract/interface type. When the adapter receives a call to any of its methods, it translates parameters to the appropriate format and then directs the call to one or several methods of the wrapped object.    |
+| Bridge       | decouple an abstraction from its implementation.                          | When both abstraction and implementation can vary independently.         | Bridge can be recognized by a clear distinction between some controlling entity and several different platforms that it relies on.                                                                                                                                                                |
+| Composite    | Compose objects into tree structures representing part-whole hierarchies. | When you need to treat individual objects and compositions uniformly.    | If you have an object tree, and each object of a tree is a part of the same class hierarchy, this is most likely a composite. If methods of these classes delegate the work to child objects of the tree and do it via the base class/interface of the hierarchy, this is definitely a composite. |
+| Decorator    | Dynamically add responsibilities to an object.                            | When you need to add behavior to objects without subclassing.            | Subclasses of `java.io.InputSretam`, `java.io.OutputStream`                                                                                                                                                                                                                                       |
+| Facade       | Provide a simplified interface to a complex subsystem.                    | To hide the complexity of a subsystem from the client.                   | Faces API's `ExternalContext`                                                                                                                                                                                                                                                                     |
+| Flyweight    | Reduce memory usage by sharing common parts of state between objects.     | When you need to create a large number of similar objects.               | `IntegerCache` in `java.lang.Integer`                                                                                                                                                                                                                                                             |
+| Proxy        | Provide a placeholder for another object to control access to it.         | To control access to an object or add functionality before/after access. | `java.lang.reflect.Proxy`                                                                                                                                                                                                                                                                         |
+
+### Code Examples (Structural Patterns)
+
+#### Adapter
+
+##### round
+
+##### round/RoundHole.java: Round holes
+
+```java
+/**
+ * RoundHoles are compatible with RoundPegs.
+ */
+public class RoundHole {
+    private double radius;
+
+    public RoundHole(double radius) {
+        this.radius = radius;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+
+    public boolean fits(RoundPeg peg) {
+        boolean result;
+        result = (this.getRadius() >= peg.getRadius());
+        return result;
+    }
+}
+```
+
+##### round/RoundPeg.java: Round pegs
+
+```java
+/**
+ * RoundPegs are compatible with RoundHoles.
+ */
+public class RoundPeg {
+    private double radius;
+
+    public RoundPeg() {}
+
+    public RoundPeg(double radius) {
+        this.radius = radius;
+    }
+
+    public double getRadius() {
+        return radius;
+    }
+}
+```
+
+##### square
+
+##### square/SquarePeg.java: Square pegs
+
+```java
+/**
+ * SquarePegs are not compatible with RoundHoles (they were implemented by
+ * previous development team). But we have to integrate them into our program.
+ */
+public class SquarePeg {
+    private double width;
+
+    public SquarePeg(double width) {
+        this.width = width;
+    }
+
+    public double getWidth() {
+        return width;
+    }
+
+    public double getSquare() {
+        double result;
+        result = Math.pow(this.width, 2);
+        return result;
+    }
+}
+```
+
+##### adapters
+
+##### adapter/SquarePegAdapter.java: Adapter of square pegs to round holes
+
+```java
+/**
+ * Adapter allows fitting square pegs into round holes.
+ */
+public class SquarePegAdapter extends RoundPeg {
+    private SquarePeg peg;
+
+    public SquarePegAdapter(SquarePeg peg) {
+        this.peg = peg;
+    }
+
+    @Override
+    public double getRadius() {
+        double result;
+        // Calculate a minimum circle radius, which can fit this peg.
+        result = (Math.sqrt(Math.pow((peg.getWidth() / 2), 2) * 2));
+        return result;
+    }
+}
+```
+
+#### Bridge
+
+##### devices
+
+##### devices/Device.java: Common interface of all devices
+
+```java
+public interface Device {
+    boolean isEnabled();
+
+    void enable();
+
+    void disable();
+
+    int getVolume();
+
+    void setVolume(int percent);
+
+    int getChannel();
+
+    void setChannel(int channel);
+
+    void printStatus();
+}
+```
+
+##### devices/Radio.java: Radio
+
+```java
+public class Radio implements Device {
+    private boolean on = false;
+    private int volume = 30;
+    private int channel = 1;
+
+    @Override
+    public boolean isEnabled() {
+        return on;
+    }
+
+    @Override
+    public void enable() {
+        on = true;
+    }
+
+    @Override
+    public void disable() {
+        on = false;
+    }
+
+    @Override
+    public int getVolume() {
+        return volume;
+    }
+
+    @Override
+    public void setVolume(int volume) {
+        if (volume > 100) {
+            this.volume = 100;
+        } else if (volume < 0) {
+            this.volume = 0;
+        } else {
+            this.volume = volume;
+        }
+    }
+
+    @Override
+    public int getChannel() {
+        return channel;
+    }
+
+    @Override
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+
+    @Override
+    public void printStatus() {
+        System.out.println("------------------------------------");
+        System.out.println("| I'm radio.");
+        System.out.println("| I'm " + (on ? "enabled" : "disabled"));
+        System.out.println("| Current volume is " + volume + "%");
+        System.out.println("| Current channel is " + channel);
+        System.out.println("------------------------------------\n");
+    }
+}
+```
+
+##### devices/Tv.java: TV
+
+```java
+public class Tv implements Device {
+    private boolean on = false;
+    private int volume = 30;
+    private int channel = 1;
+
+    @Override
+    public boolean isEnabled() {
+        return on;
+    }
+
+    @Override
+    public void enable() {
+        on = true;
+    }
+
+    @Override
+    public void disable() {
+        on = false;
+    }
+
+    @Override
+    public int getVolume() {
+        return volume;
+    }
+
+    @Override
+    public void setVolume(int volume) {
+        if (volume > 100) {
+            this.volume = 100;
+        } else if (volume < 0) {
+            this.volume = 0;
+        } else {
+            this.volume = volume;
+        }
+    }
+
+    @Override
+    public int getChannel() {
+        return channel;
+    }
+
+    @Override
+    public void setChannel(int channel) {
+        this.channel = channel;
+    }
+
+    @Override
+    public void printStatus() {
+        System.out.println("------------------------------------");
+        System.out.println("| I'm TV set.");
+        System.out.println("| I'm " + (on ? "enabled" : "disabled"));
+        System.out.println("| Current volume is " + volume + "%");
+        System.out.println("| Current channel is " + channel);
+        System.out.println("------------------------------------\n");
+    }
+}
+```
+
+##### remotes
+
+##### remotes/Remote.java: Common interface for all remotes
+
+```java
+public interface Remote {
+    void power();
+
+    void volumeDown();
+
+    void volumeUp();
+
+    void channelDown();
+
+    void channelUp();
+}
+
+```
+
+##### remotes/BasicRemote.java: Basic remote control
+
+```java
+public class BasicRemote implements Remote {
+    protected Device device;
+
+    public BasicRemote() {}
+
+    public BasicRemote(Device device) {
+        this.device = device;
+    }
+
+    @Override
+    public void power() {
+        System.out.println("Remote: power toggle");
+        if (device.isEnabled()) {
+            device.disable();
+        } else {
+            device.enable();
+        }
+    }
+
+    @Override
+    public void volumeDown() {
+        System.out.println("Remote: volume down");
+        device.setVolume(device.getVolume() - 10);
+    }
+
+    @Override
+    public void volumeUp() {
+        System.out.println("Remote: volume up");
+        device.setVolume(device.getVolume() + 10);
+    }
+
+    @Override
+    public void channelDown() {
+        System.out.println("Remote: channel down");
+        device.setChannel(device.getChannel() - 1);
+    }
+
+    @Override
+    public void channelUp() {
+        System.out.println("Remote: channel up");
+        device.setChannel(device.getChannel() + 1);
+    }
+}
+```
+
+##### remotes/AdvancedRemote.java: Advanced remote control
+
+```java
+public class AdvancedRemote extends BasicRemote {
+
+    public AdvancedRemote(Device device) {
+        super.device = device;
+    }
+
+    public void mute() {
+        System.out.println("Remote: mute");
+        device.setVolume(0);
+    }
+}
+```
+
+##### Demo.java: Client code
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        testDevice(new Tv());
+        testDevice(new Radio());
+    }
+
+    public static void testDevice(Device device) {
+        System.out.println("Tests with basic remote.");
+        BasicRemote basicRemote = new BasicRemote(device);
+        basicRemote.power();
+        device.printStatus();
+
+        System.out.println("Tests with advanced remote.");
+        AdvancedRemote advancedRemote = new AdvancedRemote(device);
+        advancedRemote.power();
+        advancedRemote.mute();
+        device.printStatus();
+    }
+}
+```
 
 ## Behavioral Design Patterns
 

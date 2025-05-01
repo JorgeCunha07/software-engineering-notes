@@ -334,3 +334,189 @@ Interface:
 Abstract Class:
 All classes share fields or constructors.
 You want default behavior and state together.
+
+## Testing Methodologies
+
+Testing is a critical aspect of software development, ensuring the correctness and reliability of object-oriented applications. Several methodologies are applicable to Java OOP.
+
+### Unit Testing
+
+Focuses on testing individual units of code, such as methods or classes, in isolation. The goal is to verify that each unit functions correctly on its own. JUnit and TestNG are popular testing frameworks in Java that provide annotations and APIs for writing and running unit tests. Examples of unit tests would involve creating test cases for specific methods of a class, providing different inputs, and asserting that the output matches the expected results. Mocking frameworks like Mockito are often used in unit testing to create test doubles (mocks) of dependencies, allowing the unit under test to be isolated from its collaborators.
+
+### Integration Testing
+
+Involves testing the interaction between different units or components of the application. This type of testing ensures that the various parts of the system work together correctly. Strategies for integration testing in Java OOP include testing the interactions between different classes, modules, and external systems such as databases or APIs. For example, you might test the interaction between a service class and its data access object to ensure that data os correctly retrieved and persisted.
+
+### Smoke Testing
+
+Is a preliminary testing technique performed after a new software build or significant code changes to ensure that the most critical functionalities of the application are working correctly. It's a quick and basic set of tests to determine if the build is stable enough for further, more in-depth testing. Smoke tests typically cover core functionalities like user login, basic navigation, and key workflows. If smoke tests fail, it indicates major issues that need to be addressed before proceeding with more extensive testing.
+
+### End-to-End (E2E) Testing
+
+Is a comprehensive testing approach that validates the entire application workflow from start to finish, simulating real user scenarios. E2E tests ensure that all components of the system, including the front-end, back-end, database, and any external integrstions, work together as expected. These tests are crucial for verifying the overall functionality and user experience of the application.
+
+### Acceptance Testing
+
+Is a formal testing phase conducted to determine whether the software meets the specified requirements and is acceptable to the end-users or stakeholders. Different types of acceptance testing include User Acceptance Testing (UAT), Business Acceptance Testing (BAT), and Operational Acceptance Testing (OAT). The goal is to ensure that the software aligns with business needs and user expectations before it is released to production.
+
+### Performance Testing
+
+Is a non-functional testing technique used to evaluate the responsiveness, stability, scalability, and reliability of an application under various workloads. Different types of performance testing include load testing, stress testing, spike testing, and endurance testing. The aim is to identify performance bottlenecks and ensure the application can handle the expected user load and maintain acceptable performance levels.
+
+### Security Testing
+
+Is focused on identifying vulnerabilities, weaknesses, and potential risks in a software application's security features. The goal is to ensure that the software is secure from malicious attacks, unauthorized access, and data breaches. Various security testing methods exist, including vulnerability scanning, penetration testing, and security auditing.
+
+### Mocking
+
+Is a technique used in testing to isolate the code being tested from its dependencies. A mocking framework like Mockito allows developers to create mock objects that simulate the behavior of real dependencies. This is particularly useful in unit testing when a class depends on other complex or external components. By using mocks, you can control the inputs and output of these dependencies, making it easier to test the logic within the unit under test without being affected by the actual behavior of its dependencies. For instance, if you are testing a service that depends on an external API, you can create a mock of the API client to simulate different responses and verify how the service handles them.
+
+## Advanced Java OOP Concepts
+
+### Reflection
+
+Is a powerful feature in Java that allows examining and manipulating classes, interfaces, fields, and methods at runtime. The `java.lang.reflect` package provides classes and interfaces to work with reflection. Use cases for reflection include frameworks and libraries that need to dynamically inspect and use classes without having prior knowledge of their exact types. For example, a dependency injection framework might use reflection to inspect classes and instantiate their dependencies. You can use reflection to get information about a class's methods, fields, and constructors, and even invoke methods or access fields at runtime.
+
+### Annotations
+
+Are a form of metadata that provide information about the code. They can be used by the compiler or at runtime to provide instructions or additional information about classes, methods, variables, parameters, or packages. Examples of built-in annotations in Java include `@Override`, which indicates that a method from its superclass, and `@Deprecated`, which marks a program element as obsolete. Custom annotations can also be defined and processed at compile time or runtime using reflection. Annotations can be used for various purposes, such as code generation, configuration, and documentation.
+
+### Concurrency in OOP
+
+Involves managing multiple threads and synchronization in object-oriented systems. Java provides built-in support for concurrency through the `java.lang.Thread` class and synchronization mechanisms like synchronized blocks and methods, as well as more advanced concurrency utilities in the `java.util.concurrent` package. Designing thread-safe objects and managing shared resources are crucial in concurrent OOP to prevent issues like race conditions and deadlocks. OOP principles like encapsulation and immutability can play a significant role in designing concurrent systems.
+
+## Java Virtual Machine (JVM) internals
+
+### Java Memory Management
+
+Java memory management is a fundamental concept that involves the automatic allocation and deallocation of objects, managed by the JVM. The JVM uses a garbage collector to automaticaly remove unused objects, freeing up memory in the background. This eliminates the need for developers to manually handle memory management.
+
+#### JVM Memory Structure
+
+JVM defines various run time data area which are used during execution of a program. Some of the areas are created by the JVM whereas some are created by the threads that are used in a program. However, the memory area created by JVM is destroyed only when the JVM exists. The data areas of thread are created during instantiation and destroyed when the thread exists. These areas include:
+
+- Heap Area
+- Method Area
+- JVM Stacks
+- Native Method Stacks
+- Program Counter (PC) registers
+
+![alt text](images/java_memory_area_parts.png)
+
+##### 1. Heap Area
+
+- Heap is a shared runtime data area where objects and arrays are stored. It is created when the JVM starts.
+- The memory in the heap is allocated for all the class instances and arrays.
+- Heap can be of fixed or dynamic size depending upon the system's configuration.
+- JVM allows user to0 adjust the heap size. When the `new` keyword is used, the object is allocated in the heap and its reference is stored in the stack.
+- There exists one and only one heap for a running JVM process.
+
+```java
+Scanner sc = new Scanner(System.in)
+```
+
+Here, the **Scanner** object is stored in the heap and the reference **sc** is stored in the stack.
+
+**Note:** Garbage collection in heap area is mandatory.
+
+##### 2. Method Area
+
+- Method area is a logical part of the heap and it is created when the JVM starts.
+- Method area is used to store class-level information such as class structures, Method bytecode, Static variables, Constant pool, Interfaces.
+- Method area can be of fixed or dynamic size depending on the system's configuration.
+
+**Note:** Though method area is logically a part of the heap, it may or may not be garbage collected even if garbage collection is compulsory in heap area.
+
+**Note:**
+
+- Static variables are stored in the Method Area.
+- Instance variables are stored in the Heap.
+- Local Variables are stored in the Stack.
+
+##### 3. JVM Stacks
+
+- A stack is created when a thread is created, and the JVM stack is used to store method execution data, including local variables, method arguments, and return addresses.
+- Each Thread has its own stack, ensuring thread safety.
+- Stacks size can be either fixed or dynamic, and it can be set when the stack is created.
+- The memory for stack needs not to be contiguous.
+- Once a method completes execution, its associated stack fram is removed automatically.
+
+##### 4. Native Method Stacks
+
+- Native method stack is also known as C stacks.
+- Native method stacks are not written in Java language.
+- This memory is allocated for each thread when it is created and can have either a fixed or dynamic size.
+- Native method stacks handle the execution of native methods that interact with the Java code.
+
+##### 5. Program Counter (PC) Registers
+
+each JVM which carries out the task of a specific method has a program counter register associated with it. The non native method has a PC which stores the address of the available JVM instruction whereas in a native method, the value of program counter is undefined. PC register is capable of storing the return address or a native pointer on some specific platform.
+
+### Garbage Collection
+
+Garbage collection in Java is an automatic memory management process that helps Java programs run efficiently. Java programs compile to bytecode that can be run on a Java Virtual Machine. When Java programs run on the JVM, objects in the heap are created, which is a portion of memory dedicated to the program. Eventually, some objects will no longer be needed. The garbage collector finds these unused objects and deletes them to free up memory in the heap. It runs in the background as a daemon thread, helping to manage memory efficiently without requiring the programmer's constant attention.
+
+#### Working of Garbage Collection
+
+- Java garbage collection is an automatic process that manages memory in the heap.
+- It identifies which objects are still in use (referenced) and which are not in use (unreferenced).
+- It removes the objects that are unreachable (no longer referenced).
+- The programmer does not need to mark objects to be deleted explicitly. The garbage collection implementation lives in the JVM.
+
+#### Types of Activities in Java Garbage Collection
+
+Two types of garbage collection activities usually happen in Java. There are:
+
+1. Minor or incremental Garbage Collection (GC): This occurs when unreachable objects in the Young Generation heap memory are removed.
+2. Major or Full Garbage Collection (GC): This happens when objects that survived minor garbage collection are removed from the Old Generation heap memory. It occurs less frequently than minor garbage collection.
+
+#### Key Concepts on garbage Collection
+
+##### 1. Unreachable Objects
+
+An object becomes unreachable if it does not contain any reference to it.
+**Note:** Objects which are part of the island of isolation are also unreachable.
+
+```java
+Integer i = new Integer(4);
+
+// the new Integer object is reachable via the reference in 'i'.
+
+i = null;
+
+// the Integer object is no longer reachable.
+```
+
+##### 2. Making Objects Eligible for GC
+
+An object is said to be eligible for garbage collection if it is unreachable. After `i = null`, integer object 4 in the heap area is suitable for garbage collection.
+
+###### How to make an object eligible for Garbage Collection?
+
+Even though thr programmer is not responsible for destroying useless objects but it is highly recommended to make an object unreachable (thus eligible for GC) if it is no longer required. There are generally four ways to make an object eligible for garbage collection.
+
+- Nullifying the reference variable (`obj = null`)
+- Re-assigning the reference variable (`obj = new Object()`)
+- An object created inside the method (eligible after method execution)
+- Island of isolation (Objects that are isolated and not referenced by any reachable objects)
+
+###### Requesting Garbage Collection
+
+- Once an object is eligible for garbage collection, it may not be destroyed immediately. The garbage collector runs at the JVM's discretion, and you cannot predict when it will occur.
+- We can also request JVM to run Garbage Collector. There are two ways to do it:
+
+  1. Using `System.gc()`: This static methos requests the JVM to perform garbage collection.
+  2. using `Runtime.getRuntime().gc()`: This method also requests garbage collection through the Runtime class.
+
+     **Note:** There is no guarantee that the garbage collector will run after these calls.
+
+#### 3. Finalization
+
+Before destroying an object, the garbage collector calls the `finalize()` method to perform cleanup activities.
+
+**Note:**
+
+- The `finalize()` method is called by the Garbage Collector, not JVM.
+- The default implementation of `finalize()` is empty, so overriding it is recommended for resource cleanup.
+- The `finalize()` method is called only once per object.
+- If an uncaught exception is thrown by the `finalize()` method, the exception is ignored, and the finalization of that object terminates.
