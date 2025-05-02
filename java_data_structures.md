@@ -410,7 +410,7 @@ static boolean searchDFS(Node root, int value) {
 }
 ```
 
-##### 5. Deletion in Binary Tree
+##### 4. Deletion in Binary Tree
 
 Deleting a node from a binary tree means removing a specific node while keeping the tree's structure. First, we need to find the root node that we want to delete by traversing through the tree using any traversal method. Then replace the node's value with the value of the last node in the tree (found by traversing to the rightmost leaf), and then delete that last node. This way, the tree structure won't be affected. And remember to check for special cases, like trying to delete from an empty tree to avoid any issues.
 
@@ -477,5 +477,185 @@ static Node deleteNode(Node root, int val) {
   }
 
   return root;
+}
+```
+
+### Binary Search Tree (BST)
+
+Binary Search tree is a data structure used in computer science for organizing and storing data in a sorted manner. Binary search tree follows all properties of binary tree and for every nodes, its left subtree contains values smaller than the node, and the right subtree contains values greater than the node. This hierarchical structure allows for efficient Searching, Insertion, and Deletion operations on the data stored in the tree.
+
+#### Properties of Binary Search Tree
+
+- The left subtree of a node contains only nodes with keys smaller than the node's key.
+- The right subtree of a node contains only nodes with keys greater than the node's key.
+- The left and right subtree each must also be a binary search tree.
+- There must be no duplicate nodes (BST may have duplicate values with different handling apporaches).
+
+#### Operations in Binary Search Tree
+
+##### 1. Insertion in Binary Search Tree
+
+A new key is always inserted at the leaf by maintaining the property of the binary search tree. We start searching for a key from the root until we hit a leaf node. Once a leaf node is found, the new node is added as a child of the leaf node. The below steps are followed while we try to insert a node into a binary search tree:
+
+- Initialize the current node with root node.
+- Compare the key with the current node.
+- Move left if the key is smaller than or equal to the current node value.
+- Move right if the key is greater than current node value.
+- Repeat steps 2 and 3 until you reach a leaf node.
+- Attach the new key as a left or right child based on the comparison with the leaf node's value.
+
+Recursive:
+
+```java
+class Node {
+    int key;
+    Node left, right;
+    public Node(int item)
+    {
+        key = item;
+        left = right = null;
+    }
+}
+
+class Main {
+  // A utility function to insert a new node with the given key
+  static Node insert(Node root, int key) {
+
+    // If the tree is empty, return a new node
+    if(root == null) return new Node(key);
+
+    // If the key is already present in the tree, return the node
+    if(root.key == key) return root;
+
+    // Otherwise, recur down the tree
+    if(key < root.key) {
+      root.left = insert(root.left, key);
+    } else {
+      root.right = insert(root.right, key);
+    }
+
+    // Return the (unchanged) node pointer
+    return root;
+  }
+
+  public static void main(String[] args)
+  {
+      Node root = null;
+
+      // Creating the following BST
+      //      50
+      //     /  \
+      //    30   70
+      //   / \   / \
+      //  20 40 60 80
+
+      root = insert(root, 50);
+      root = insert(root, 30);
+      root = insert(root, 20);
+      root = insert(root, 40);
+      root = insert(root, 70);
+      root = insert(root, 60);
+      root = insert(root, 80);
+  }
+}
+```
+
+##### 2. Search In Binary Search Tree
+
+Let's say we want to search for the number X, we start at the root. Then:
+
+- We compare the value to be searched with the value of the root.
+  - If it's equal we are done with the search if it's smaller we know that we need to go to the left subtree because in a binary search tree all the elements in the left subtree are smaller and all the elements in the right subtree are larger.
+- Repeat the above step till no more traversal is possible.
+- If at any iteration, key is found, return True, else False.
+
+Recursive:
+
+```java
+// Function to search a key in BST
+static Node search(Node root, int key) {
+  // Base Cases: root is null or key is present at root
+  if(root == null || root.key == key) return root;
+
+  // Key is greater than root's key
+  if(root.key < key) return search(root.right, key);
+
+  // Key is smaller than root's key
+  return search(root.left, key);
+}
+```
+
+##### 3. Delete in Binary Search Tree
+
+###### 1. Delete a Leaf Node in BST
+
+![alt text](images/bst_delete_leaf.png)
+
+###### 2. Delete a Node with Single Child in BST
+
+Deleting a single child node is also simple in BST. Copy the child to the node and delete the node.
+
+![alt text](images/bst_delete_single_child.png)
+
+###### 3. Delete a Node with Both Children in BST
+
+Deleting a node with both children is not so simple. Here we have to delete the node in such a way, that the resulting tree follows the properties of a BST.
+
+The trick is to find the inorder successor of the node. Copy contents of the inorder successor to the node, and delete the inorder successor.
+
+![alt text](images/bst_delete_node_both_children.png)
+
+**Note:** Inorder successor is needed only when the right child is not empty. In this particular case, the inorder successor can be obtained by finding the minimum value in the right child of the node.
+
+Recursive deletion in a BST:
+
+```java
+// This function deletes a given key x from the
+// given BST and returns the modified root of
+// the BST (if it is modified)
+static Node delNode(Node root, int x) {
+
+  // Base case
+  if(root == null) return root;
+
+  // If key to be searched is in a subtree
+  if(root.key > x) {
+    root.left = delNode(root.left, x);
+  } else if(root.key < x) {
+    root.right = delNode(root.right, x);
+  } else {
+    // If root matches with the given key
+
+    // Cases when root has 0 children or
+    // only right child
+    if(root.left == null) {
+      return root.right;
+    }
+
+    // When root has only left child
+    if(root.right == null) {
+      return root.left;
+    }
+
+    // When both children are present
+    Noce succ = getSuccessor(root);
+    root.key = succ.key;
+    root.right = delNode(root.right, succ.key);
+  }
+
+  return root;
+}
+
+// Note that is is not a generic inorder successor
+// function. It mainly works when the right child
+// is not empty, which is the case we need in BST
+// delete.
+static Node getSuccessor(Node curr) {
+  curr = curr.right;
+  while(curr != null && curr.left != null) {
+    curr = curr.left;
+  }
+
+  return curr;
 }
 ```
