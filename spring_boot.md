@@ -64,6 +64,14 @@ Ex. In the @Service annotation we don't manually create the service, Spring IoC 
   @ActiveProfiles("dev") on the test class for the DevProfileTest
   @ActiveProfiles("prod") on the test class for the ProdProfileTest
 
+@ControllerAdvice:
+
+- Provides centralized exception handling for REST APIs. It allows to define a global exception handling for all controllers in the application, making it a powerful tool for managing errors in RESTful services.
+
+@ExceptionHandler:
+
+- Is used to handle exceptions within a specific controller class.
+
 ### Testing
 
 #### Unit Tests
@@ -113,3 +121,27 @@ Types of mocks:
 - Mock: An object with pre-defined answers to method calls, and has
   expectations of executions;
 - Spy: In mockito Spies are Mock like wrappers around the actual object;
+
+### Other Concepts
+
+- **AOP:** Aspect-oriented programming. It allows developers to separate cross-cutting concerns such as logging, security, and transaction management from the core business logic, making the codebase more modular and easier to maintain. It encapsulates them into reusable aspects.
+
+Common Cross Cutting Concerns
+
+| Concern      | Where it applies                      |
+| ------------ | ------------------------------------- |
+| Logging      | Every method entry/exit               |
+| Security     | Before executing sensitive operations |
+| Transactions | Around service methods (start/commit) |
+| Metrics      | Measuring execution time              |
+| Caching      | Controlling method result reuse       |
+
+Key AOP Concepts
+
+| Term       | Meaning                                                                |
+| ---------- | ---------------------------------------------------------------------- |
+| Aspect     | A module that encapsulates cross-cutting behavior (e.g. logging logic) |
+| Advice     | Code that runs at a specific join point (e.g. before/after a method)   |
+| Join Point | A point in a program execution (e.g. method call, exception)           |
+| Pointcut   | An expression that selects join points (e.g. all methods in a package) |
+| Weaving    | Linking to the code (can be compile-time, load-time, or runtime)       |
