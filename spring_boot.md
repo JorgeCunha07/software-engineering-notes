@@ -1,6 +1,6 @@
-# Spring Boot
+# Spring and Spring Boot
 
-## Key Concepts
+## Spring Key Concepts
 
 ### Inversion of Control (IoC)
 
@@ -191,9 +191,164 @@ Consequently, the _item1_ bean will only be initialized when it's first requeste
 DI refers to the composition of the classes when injecting a dependency
 Ex. @Autowired creates and injects a service in the constructor.
 
-IoC shifts control of the dependencies to the framework. Is a design principle where the control of object creation
-and flow is transferred from the application to the framework.
+IoC shifts control of the dependencies to the framework. Is a design principle where the control of object creation and flow is transferred from the application to the framework.\
 Ex. In the @Service annotation we don't manually create the service, Spring IoC does it for us.
+
+### Beans
+
+**Beans** are objects that are instantiated, assembled, and otherwise managed by a Spring IoC container. These are the building blocks of a Spring application.
+
+#### Declaring Beans
+
+- **Annotation-based:** Using stereotype annotations like `@Component`, `@Service` (for business logic), `@Repository` (for data access), `@Controller` (for web layers).\
+  Spring scans for these annotations.
+- **Java-based Configuration:** Using `@Configuration` on a class and `@Bean` on methods within that class. This gives you a programmatic control over bean creation.
+
+```java
+@Configuration
+public class AppConfig {
+  @Bean
+  public MyService myService() {
+    return new MyService(anotherService());
+  }
+
+  @Bean
+  public AnotherService anotherService() {
+    return new AnotherService();
+  }
+}
+```
+
+- **XML-based Configuration (Legacy):** Defining beans in XML files. Good to be aware of if you encounter old projects.
+
+#### Bean Scopes
+
+Define the lifecycle and visibility of a bean instance.
+
+- `singleton` (default): Only one instance of the bean is created per Spring IoC container.
+- `prototype`: A new instance is created every time the bean is requested.
+- `request`: (Web-aware applications) A new instance for each HTTP request.
+- `session`: (Web-aware applications) A new instance for each HTTP session.
+- `application`: (Web-aware application) Scoped to the lifecycle of the `ServletContext`.
+- `websocket`: (Web-aware applications) Scoped to the lifecycle of a WebSocket.
+
+#### Bean Lifecycle
+
+Spring manages the complete lifecycle of a bean, from instantiation and dependency injection to initialization callbacks (e.g., methods annotated with `@PostConstruct` or implementing `InitializingBean`) and destruction callbacks (e.g., methods annotated with `@PreDestroy` or implementing `DisposableBean`).
+
+#### Key Annotations for Bean Management
+
+- `@Autowired`: Marks a constructor, field, setter method, or config method to be autowired by Spring's dependency injection facilities.
+- `@Component`: generic setereotype for any Spring-managed component.
+- `@Service`: Specialization of `@Component` for service layer classes.
+- `@Repository`: Specialization of `@Component` for persistence layer classes (often enables automatic exception translation).
+- `@Controller`: Specialization of `@Component` for presentation layer classes (used in Spring MVC).
+- `@Configuration`: Indicates that a class declares one or more `@Bean`methods and may be processed by the Spring container to generate bean definitions.
+- `@Bean`: Indicates that a method produces a bean to be managed by the Spring container.
+- `@Qualifier("beanName")`: Used when you have multiple beans of the same type and want to specify which one to inject.
+- `@Value`: Used to inject values from properties files, system properties, or expressions (SpEL - Spring Expression Language).
+
+### Aspect-Oriented Programming (AOP) - Overview
+
+#### Concept of AOP
+
+AOP complements Object-Oriented Programming (OOP) by providing another way of thinking about program structure. OOP's main unit of modularity is the class, whereas AOP's is the aspect. Aspects enable the modularization of _cross-cutting concerns_ - concerns that affect multiple points in an application (e.g., logging, security, transaction management).
+
+#### Key AOP Terminology
+
+- **Aspect:** A module that encapsulates a cross-cutting concern. In Spring AOP, aspects are typically regular Java classes annotated with `@Aspect`.
+- **Join Point:** A point during the execution of a program, such as the execution of a method or the handling of an exception. In Spring AOP, a join always represents a method execution.
+- **Advice:** Action taken by an aspect at a particular join point. Different types of advice include "around", "before", and "after" advice.
+
+  - `@Before`: Advice that executes before a join point.
+  - `@AfterReturning`: Advice that executes after a join point completes.
+  - `@AfterThrowing`: Advice that executes if a method exits by throwing an exception.
+  - `@After`: Advice that executes regardless of the means by which a join point exits (normal or exceptional return).
+  - `@Around`: Advice that surrounds a join point, such as a method invocation. This is the most powerful kind of advice.
+
+- **Pointcut:** A predicate that matches join poins. Advice is associated with a pointcut expression and runs at any join point matched by the pointcut.
+- **Target Object:** the object being advised by one or more aspects.
+- **Proxy:** Spring AOP is proxy-based. The AOP framework creates a proxy object (either JDK dynamic proxy or CGLIB proxy) that wraps the target object to weave in the advice.
+
+#### Spring's Use of AOP
+
+Transactions (`@Transactional`), security, caching (`@Cacheable`), and logging are common use cases. For `@Transactional`, Spring AOP intercepts calls to methods marked with this annotation and starts/commits/rolls back a transaction automatically.
+
+## Spring Boot
+
+While Spring Framework provides immense flexibility, configuring it can sometimes be verbose. **Spring Boot** came along to radically simplify the bootstrapping and development of new Spring applications. It takes an "opinionated" view of building production-ready applications.
+
+### Core Problems Solved by Spring Boot
+
+- Reduces boilerplate configuration
+- Provides sensible defaults for a lot of Spring and third-party libraries.
+- Makes it easy to create standalone, production-grade Spring-based Applications.
+
+### key Features and Concepts
+
+#### `@SpringBootApplication`
+
+This is a convenience that adds all of the following:
+
+- `@Configuration`: Tags the class as a source of bean definitions for the application contex.
+- `@EnableAutoConfiguration`: Tells Spring Boot to start adding beans based on classpath settings, other beans, and various property settings.
+- `@ComponentScan`: Tells Spring to look for the other components, configurations, and services in the specified package (and its sub-packages), allowing it to find and register beans.
+
+Typically, your main application class is annotated with this.
+
+#### Starters (`spring-boot-starter-*`)
+
+These are a set of convenient dependency descriptors that you can include in your application.\
+You include a starter, and Spring Boot ensures that all compatible libraries needed for that specific functionality are added to your project with consistent versions.
+
+**Examples:**
+
+- `spring-boot-starter-web`: For buolding web applications using Spring MVC. Includes Tomcat as the default embedded servlet container.
+- `spring-boot-starter-data-jpa`: For using Spring Data JPA with Hibernate.
+- `spring-boot-starter-test`: For testing Spring Boot applications with libraries like JUnit, Hamcrest, and Mockito.
+- `spring-boot-starter-actuator`: For production-ready features like monitoring and metrics.
+- `spring-boot-starter-security`: For Spring Security.
+
+#### Auto-Configuration
+
+Spring Boot attempts to automatically configure your Spring application based on the JAR dependencies you have added.\
+For example, if `HSQLDB` is on your classpath and you have not manually configured any database connection beans, the Spring Boot auto-configures an in-memory database.\
+If you have `spring-boot-starter-web`, it automatically configures things like `DispatcherServlet`, a default error page, etc.\
+You can always override auto-configuration by defining your own beans.\
+**Conditional Annotations:** Auto configuration works heavily with conditional annotations (e.g., `@ConditionalOnClass`, `@ConditionalOnBean`, `@ConditionalOnProperty`) to decide whether a particular configuration should be applied.
+
+#### Embedded Servers
+
+Spring Boot applications can be easily packaged as executable JARs with embedded servlet containers like Tomcat (default), Jetty, or Undertow.\
+This means you don't need to deploy WAR files to an external servlet container. You can just run `java -jar myapp.jar`.
+
+#### Externalized Configuration
+
+Spring Boot allows you to externalize your configuration so you can work with the same application code in different environments.\
+It uses a very specific `Property` order, allowing you to override defaults using:
+
+- Properties files (`application.properties` or `application.yml`)
+- YAML files (`application.yml`)
+- Command-line arguments
+- Environment variables
+- JNDI attributes
+
+`@ConfigurationProperties`: A powerful way to bind external configuration properties to your Java objects in a type-safe manner.\
+**Profiles** (`spring.profiles.active`): Allows you to define different configurations for different environments (e.g., `dev`, `qa`, `prod`). You can have `application-dev.properties`, `application-prod.properties`, etc.
+
+#### Spring Boot Actuator
+
+Provides production-ready features to help you monitor and manage your application.\
+Exposes several endpoints (over HTTP or JMX) for health checkers, metrics, application info, environment details, etc.\
+**Common Endpoints:**
+
+- `/actuator/health`: Show application health information.
+- `/actuator/info`: Displays arbitrary application info.
+- `/actuator/metrics`: Show metris for your application.
+- `/actuator/env`: Displays ConfigurableEnvironment properties.
+- `/actuator/loggers`: View and modify logger levels.
+
+These endpoints are securable and customizable.
 
 ### Annotations
 
