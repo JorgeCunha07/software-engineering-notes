@@ -2,6 +2,190 @@
 
 ## Key Concepts
 
+### Inversion of Control (IoC)
+
+**Inversion Control** is a principle in software engineering which transfers the control of objects or portions of a program to a container or framework. We most oten use it in the context of object-oriented programming.
+In contrast with traditional programming, in which our custom code makes calls to a library, IoC enables a framework to take control of the flow of a program and make calls to our custom code. To enable this, frameworks use abstractions with additional behavior built in. If we want to add our own behavior, we need to extend the classes of the framework or plugin our own classes.
+The advantages of this architecture are:
+
+- decoupling the execution of a task from its implementation.
+- making it easier to switch between different implementations.
+- greater modularity of a program.
+- greater ease in testing a program by isolating a component or mocking its dependencies, and allowing components to communicate through contracts.
+
+We can achieve Inversion of Control through various mechanisms such as: Strategy design pattern, Service Locator pattern, and Dependency Injection (DI).
+
+### Dependency Injection (DI)
+
+Dependency Injection is a pattern we can use to implement IoC, where the control being inverted is setting an object's dependencies.\
+Connecting objects with other objects, or "injecting" objects into other object, is done by an assembler rather than by the objects themselves.\
+
+### The Spring IoC Container
+
+An IoC container is a common characteristic of framework that implement IoC.\
+In the Spring framework, the interface _ApplicationContext_ represents the IoC container. The Spring container is responsible for instantiating, configuring and assembling objects known as _beans_, as well as managing their life cycles.\
+The Spring framework provides several implementations of the _ApplicationContext_ interface: _AnnotationConfigApplicationContext_, _ClassPathXmlApplicationContext_ and _FileSystemXmlApplicationContext_ for standalone applications, and _WebApplicationContext_ for web applications.\
+In order to assemble beans, the container uses configuration metadata, which can be in the form of XML configuration or annotations.|
+Here's one way to manually instantiate a container:
+
+```java
+ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+```
+
+And here's an example of manually instantiating a contaijer using _AnnotationConfigApplicationContext_:
+
+```java
+AnnotationConfigApplicationContext annotationContext = new AnnotationConfigApplicationContext();
+```
+
+When you create an instance of _AnnotationConfigApplicationContext_ and provide it with one or more configuration classes, it scans these classes for the _@Bean_ annotations and other relevant annotations. It then initializes and manages the beans defined in these classes, setting up their dependencies and managing their lifecycle.\
+Dependency Injection in Spring can be done through constructors, setters or fields.
+
+### Constructor-Based Dependency Injection
+
+In the case of constructor-based dependency injection, the container will invoke a constructor with arguments each representing a dependency we want to set.\
+Spring resolves each argument primarily by type, followed by name of the attribute, and index for disambiguation.\
+Let's see the configuration of a bean and its dependencies using annotations:
+
+```java
+@Configuration
+public class AppConfig {
+
+  @Bean
+  public Item item1(){
+    return new ItemImpl1();
+  }
+
+  @Bean
+  public Store store(){
+    return new Store(item1());
+  }
+}
+```
+
+The _@Configuration_ annotation indicates that the class is a source of the bean definitions. We can also add it to multiple configuration classes.\
+We use the _@Bean_ annotation on a method to define a bean. If we don't specify a custom name, then the bean name will default to the method name.\
+For a bean with the default _singleton_ scope, Spring first checks if a cached instance of the bean already exists, and only creates a new one if it doesn't. If we're using the prototype scope, the container returns a new bean instance for each method call.\
+Another way to create the configuration of the beans is through XML configuration:
+
+```java
+<bean id="item1" class="org.store.ItemImpl" />
+<bean id="store" class="org.store.Store">
+  <constructor-arg type="ItemImpl1" index="0" name="item" ref="item1" />
+</bean>
+```
+
+### Setter-Based Dependency Injection
+
+for setter-based DI, the container will call setter methods of our class after invoking a no-argument constructor or no-argument static factory method to instantiate the bean. Let's create this configuration using annotations:
+
+```java
+@Bean
+public Store (){
+  Store store = new Store();
+  store.setItem(item1());
+
+  return store;
+}
+```
+
+We can also use XML for the same configuration of beans:
+
+```java
+<bean id="store" class="org.store.Store">
+  <property name="item" ref="item1" />
+</bean>
+```
+
+We can combine constructor-based and setter-based types of injection for the same bean. The Spring documentation recommends using constructor-based injection for mandatory dependencies, and setter-based injection for optional ones.
+
+### Field-Based Dependency Injection
+
+In case of Field-Based DI, we can inject the dependencies by marking them with an _@Autowired_ annotation:
+
+```java
+public class Store {
+  @Autowired
+  private Item item;
+}
+```
+
+While constructing the Store object, if there's no constructor or setter method to inject, the _Item_ bean, the container will use reflection to inject _Item_ into _Store_.\
+We can also achieve this using XML configuration.\
+This approach might look simpler and cleaner, but we don't recommend using it because it has a few drawbacks such as:
+
+- This method uses reflection to inject the dependencies, which is costlier than constructor-based or setter-based injection.
+- It's really easy to keep adding multiple dependencies using this apporach. If we were using constructor injection, having multiple arguments would make us think that the class does more than one thing, which can violate the Single Responsibility Principle.
+
+### Autowiring Dependencies
+
+Wiring allows Spring container to automatically resolve dependencies between collaborating beans by inspecting the beans that have been defined.\
+There are four modes of autowiring a bean using an XML configuration:
+
+- **no:** the default value - this means no autowiring is used for the bean and we have to explicitly name the dependencies.
+- **byName:** autowiring is done based on the name of the property, therefore Spring will look for a bean with the same name as the property that needs to be set.
+- **byType:** similar to the _byName_ autowiring, only based on the type of the property. This means Spring will look for a bean with the same type of the property to set. If there's more than one bean of that type, the framework throws an exception.
+- **constructor:** autowiring is done based on constructor arguments, meaning Spring will liik for beans with the same type as the constructor arguments.
+
+For example, let's autowire the _item_ bean defined above by type into the _store_ bean:
+
+```java
+@Bean(autowire = Autowire.BY_TYPE)
+public class Store {
+  private Item item;
+  public setItem(Item item) {
+    this.item = item;
+  }
+}
+```
+
+Note that the _autowire_ property is deprecated as of Spring 5.1.\
+We can also inject beans using the _@Autowired_ annotation for autowiring by type:
+
+```java
+public class Store {
+  @Autowired
+  private Item item;
+}
+```
+
+If there's more than one bean of the same type, we can use the _@Qualifier_ annotation to reference a bean by name:
+
+```java
+public class Store {
+  @Autowired
+  @Qualifier("item1")
+  private Item item;
+}
+```
+
+Now let's autowire beans by type through XML configuration:
+
+```java
+<bean id="store" class="org.store.Store" autowire="byType"> </bean>
+```
+
+Next, let's inject a bean named item into the _item_property of \_store_ bean by name through XML:
+
+```java
+<bean id="item" class="org.store.ItemImpl1" />
+
+<bean id="store" class="org.store.Store" autowire="byName">
+</bean>
+```
+
+We can also override the autowiring by defining dependencies explicitly through constructor arguments or setters.
+
+### Lazy Initialized Beans
+
+By default, the container creates and configures all singleton beans during initialization. To avoid this, we can use the _lazy-init_ attribute with value _true_ on the bean configuration:
+
+```java
+<bean id="item1" class="org.store.ItemImpl1" lazy-init="true" />
+```
+
+Consequently, the _item1_ bean will only be initialized when it's first requested, and not at startup. The advantage of this is faster initialization time, but the trade-off is that we won't discover any configuration errors until after the bean is requested, which could be several hours or even days after the appliation has already been running.
+
 ### IoC vs Dependency Injection
 
 DI refers to the composition of the classes when injecting a dependency
