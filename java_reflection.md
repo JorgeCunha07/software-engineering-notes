@@ -449,6 +449,132 @@ _@Retention(RetentionPolicy.RUNTIME)_ means that the annotation can be accessed 
 
 _@Target(ElementType.TYPE)_ means that the annotation can only be used on top of types (classes and interfaces typically). You can also specify _METHOD_ or _FIELD_, or you can leave the target out alltogether so the annotation can be used for both classes, methods and fields.
 
+### Class Annotations
+
+You can access the annotations of a class, method or field at runtime. Here is an example that accesses the class annotations:
+
+```java
+Class aClass = TheClass.class;
+Annotation[] annotations = aClass.getAnnotations();
+
+for(Annotation annotation: annotations) {
+  if(annotation instanceof MyAnnotation) {
+    MyAnnotation myAnnotation = (MyAnnotation) annotation;
+    System.out.println("name: " + myAnnotation.name());
+    System.out.println("value: " + myAnnotation.value());
+  }
+}
+```
+
+You can also access a specific class annotation like this:
+
+```java
+Class aClass = TheClass.class;
+Annotation annotation = aClass.getAnnotation(MyAnnotation.class);
+
+if(annotation instanceof MyAnnotation) {
+  MyAnnotation myAnnotation = (MyAnnotation) annotation;
+  System.out.println("name: " + myAnnotation.name());
+  System.out.println("value: " + myAnnotation.value());
+}
+```
+
+### Method Annotations
+
+Here is an example of a method with annotations:
+
+```java
+public class TheClass {
+  @MyAnnotation(name="someName", value="Hello World")
+  public void doSomething(){}
+}
+```
+
+You can access method annotations like this:
+
+```java
+Annotation annotation = method.getAnnotation(MyAnnotation.class);
+
+if(annotation instanceof MyAnnotation) {
+  MyAnnotation myAnnotation = (MyAnnotation) annotation;
+  System.out.println("name: " + myAnnotation.name());
+  system.out.println("value: " + myAnnotation.value());
+}
+```
+
+### Parameter Annotations
+
+It is possible to add annotations to method parameter declarations too. Here is how that looks:
+
+```java
+public class TheClass {
+  public static void doSomethingElse(
+    @MyAnnotation(name="aName", value="aValue") String parameter
+  ) {}
+}
+```
+
+You can access parameter annotations from the _Method_ object like this:
+
+```java
+Annotation[][] parameterAnnotations = method.getParameterAnnotations();
+Class[] parameterTypes = method.getParameterTypes();
+
+int i = 0;
+
+for(Annotation[] annotations : parameterAnnotations) {
+  Class parameterType = parameterTypes[i++];
+
+  for(Annotation annotation : annotations) {
+    if(annotation instanceof MyAnnotation) {
+      MyAnnotation myAnnotation = (MyAnnotation) annotation;
+      System.out.println("param: " + parameterType.getName());
+      System.out.println("name: " + myAnnotation.name());
+      System.out.println("value: " + myAnnotation.value());
+    }
+  }
+}
+```
+
+Notice how the _Method.getParameterAnnotations()_ method returns a two-dimensional _Annotation_ array, containing an array of annotations for each method parameter.
+
+### Field Annotations
+
+Here is an example of a field with annotations:
+
+```java
+public class TheClass {
+  @MyAnnotation(name="someName", value="Hello World")
+  public String myField = null;
+}
+```
+
+You can access field annotations like this:
+
+```java
+Annotation[] annotations = field.getDeclaredAnnotations();
+
+for(Annotation annotation : annotations) {
+  if(annotation instanceof MyAnnotation) {
+    MyAnnotation myAnnotation = (MyAnnotation) annotation;
+    System.out.println("name: " + myAnnotation.name());
+    System.out.println("value: " + myAnnotation.value());
+  }
+}
+```
+
+You can also access a specific field annotation like this:
+
+```java
+Annotation annotation = field.getAnnotation(MyAnnotation.class);
+
+if(annotation instanceof MyAnnotation) {
+  MyAnnotation myAnnotation = (MyAnnotation) annotation;
+  System.out.println("name: " + myAnnotation.name());
+  System.out.println("value: " + myAnnotation.value());
+}
+```
+
 ## Arrays
 
 You can use Java Reflection to introspect Java arrays. For instance, you can determine what type of class the array is an array of. for instance, if you are introspecting a String array, you can detect that the element type is String by inspecting the array class.
