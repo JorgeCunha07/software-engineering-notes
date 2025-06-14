@@ -587,6 +587,64 @@ Java reflection has a special _Proxy_ class that can implement a Java Interface 
 
 It is possible to introspect the generic types of fields, method parameters and method return parameters, in case these are declared with a generic type.
 
+### The Generics Reflection Rule of Thumb
+
+Using Java Generics typically falls into one of two different situations:
+
+1. Declaring a class/interface as being parameterizable.
+2. Using a parameterizable class.
+
+When you write a class or interface you can specify that it shoul be prameterizable. This is the case with the _java.util.List_ interface. Rather than create a list of _Object_ you can parameterize _java.util.List_ to create a list of say _String_, like this:
+
+```java
+List<String> myList = new ArrayList<String>();
+```
+
+When inspecting a parameterizable type itself at runtime via reflection, like _java.util.List_, there is no way of knowing what type it has been parameterized to. The object itself does not know what is parameterized to.
+
+However, the reference to the object knows what type including generic type it is referencing. That is, if it is not a local variable. If an object is referenced by a field in an object, then you can look at the Field declaration via reflection, to obtain information about the generic type declared by that field.
+
+The same is possible if the object is referenced by a parameter in a method. Via the _Parameter_ object for that method (a Java reflection object) you can see what generic type that parameter is declared to.
+
+Finally, you can also look at the return type of a method to see what generic type it is declared to. Again, you cannot see it from the actual object returned. You need to look at the method declaration via reflection to see what return type (including generic type) it declares.
+
+To sum it up: You can only see from the declarations of references (fields, parameters, return types) what generic type an object referenced by these references would have. You cannot see it from the object itself.
+
+### Generic Method Return Types
+
+If you have obtained a _java.lang.reflect.Method_ object it is possible to obtain information about its generic return type. Here is an example class with a method having a parameterized return type:
+
+```java
+public class MyClass {
+  protected List<String> stringList = ....;
+
+  public List<String> getStringList() {
+    return this.stringList;
+  }
+}
+```
+
+In this class it is possible to obtain the generic return type of the _getStringList()_ method. In other words, it is possible to detect that _getStringList()_ returns a _List<String>_ and not just a _List_. Here is how:
+
+```java
+Method method = MyClass.class.getMethod("getStringList", null);
+
+Type returnType = method.getGenericReturnType();
+
+if(returnType instanceof ParameterizedType) {
+
+  ParameterizedType type = (ParameterizedType) returnType;
+  Type[] typeArguments = type.getActualTypeArguments();
+
+  for(Type typeArgument : typeArguments) {
+    Class typeArgClass = (Class) typeArgument;
+    System.out.println("typeArgClass = " + typeArgClass);
+  }
+}
+```
+
+This piece of code will print out the text "typeArgClass = java.lang.String". The _Type[]_ array _typeArguments_ array will contain one item - a _Class_ instance representing the class _java.lang.String_. _Class_ implements the _Type_ insterface.
+
 ## Modules
 
 Is is also possible to introspect a Java Module using reflection too.

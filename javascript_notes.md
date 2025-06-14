@@ -30,7 +30,7 @@ counter2(); // Output: 1 (accesses its own 'count')
 ### Hoisting
 
 The process whereby the interpreter appears to move the declaration of functions, variables, classes, or imports to the top of their scope, prior to execution of the code.
-Hoisting is a JavaScript default behaviour of moving declarations (of variables and functions) to the top of their current scope (either the global or the function scope) before the code execution. Importantly, only the declarations are hoisted, not the initializations (assignments). Function declarations are fully hoisted (name and body), while variables declared with var are hoisted and initialized with undeifined. Variables declared with let and const are hoisted but not initialized; accessing them before their declaration results in a ReferenceError (this is often called the "Temporal Dead Zone").
+Hoisting is a JavaScript default behaviour of moving declarations (of variables and functions) to the top of their current scope (either the global or the function scope) before the code execution. Importantly, only the declarations are hoisted, not the initializations (assignments). Function declarations are fully hoisted (name and body), while variables declared with var are hoisted and initialized with undefined. Variables declared with let and const are hoisted but not initialized; accessing them before their declaration results in a ReferenceError (this is often called the "Temporal Dead Zone").
 
 ```javascript
 console.log(myVar); // Output: undefined (due to var hoisting)
@@ -95,7 +95,7 @@ console.log("4. End"); // Runs second (sync)
 
 ### Prototypal Inheritance
 
-JavaScript uses prototypal inheritance, unlike the calssical inheritance found in languages like Java or C++. Every JavaScript object has a hidden internal property (often accessible via **proto** or Object.getPrototypeOf()) that links it to another object called it's "prototype". When you try to access a property or method on an object, JavaScript forst looks at the object itself. If it doesn't find it, it looks at the object's prototype, then the prototype's prototype and so on, up the "prototype chain" until it finds the property/method or reaches the end of the chain (usually Object.prototype, which has null as its prototype). ES6 class syntax is primarily syntactic sugar over this prototypal inheritance mechanism.
+JavaScript uses prototypal inheritance, unlike the classical inheritance found in languages like Java or C++. Every JavaScript object has a hidden internal property (often accessible via **proto** or Object.getPrototypeOf()) that links it to another object called it's "prototype". When you try to access a property or method on an object, JavaScript forst looks at the object itself. If it doesn't find it, it looks at the object's prototype, then the prototype's prototype and so on, up the "prototype chain" until it finds the property/method or reaches the end of the chain (usually Object.prototype, which has null as its prototype). ES6 class syntax is primarily syntactic sugar over this prototypal inheritance mechanism.
 
 ```javascript
 // Using constructor functions (pre-ES6 style)

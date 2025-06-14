@@ -10,6 +10,38 @@ Is the mechanism of building data (attributes) and the methods that operate on t
 
 Is a powerful mechanism that allows a class (subclass or child class) to inherit the properties (attributes and methods) of another class (superclass or parent class). This fosters code reusability, as common functionalities can be defined in a superclass and then extended by multiple subclasses, avoiding code duplication and adhering to the DRY (Don't Repeat Yourself) principle. Inheritance also establishes an "is-a" relationship between classes, where a sublaclass is a specialized type of its superclass. In Java, the `extends` keyword is used to implement inheritance. Sublasses can also add their own unique fields and methods, or override the methods inherited from the superclass to provide specific implementations.
 
+### Composition
+
+Composition is the design technique in object-oriented programming to implement **has-a** relationship between objects. Composition in java is achieved by using instance variables of other objects. For example, a person who has a Job is implemented like below in java object-oriented programming.
+
+```java
+public class Job {
+    // variables, methods, etc.
+}
+
+public class Person {
+    // composition has-a relationship
+    private Job job;
+
+    // variables, methods, constructors, etc. object-oriented
+}
+```
+
+### Composition over Inheritance
+
+**Inheritance (IS-A relationship)**: "A car IS-A vehicle". Best when there's a strong, clear hierarchical relationship.
+
+**Composition (HAS-A relationship)**: "A car HAS-A engine". A class contains an instance of another class. This is generally preferred over inheritance for flexibility and reducing tight coupling.
+
+- **Benefits of Composition**:
+
+  - **Flexibility**: You can change the component class without affecting the composite class, as long as the interface remains the same.
+  - **Reduced Coupling**: The composite class doesn't need to know the internal implementation details of the component.
+  - **Reusability**: Components can be reused in different composite classes.
+  - **Better for testing**: Easier to test individual components.
+
+- **When to choose which**: "Favor composition over inheritance" is a common design principle. Use inheritance when you have a clear "is-a" relationship and want to share common behavior. Use composition when you want to combine different functionalities without imposing a strict hierarchy.
+
 ### Polymorphism
 
 Means "meany forms", is the ability of an object to take on many forms. In Java, polymorphism is primarily achieved through method overloading and method overriding. **Method overloading** (compile-time polymorphism) occurs when multiple methods in the same class have the same name but different parameter lists (different number, order, or types of parameters). The compiler determines which method to call based on the arguments passed during the method invocation. **Method overriding** (run-time polymorphism) happens when a subclass must have the same name, return type, and parameter list as the method in the superclass. The decision of which method to execute is made at runtime based on the actual type of the object.
